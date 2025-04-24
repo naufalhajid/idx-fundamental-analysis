@@ -52,7 +52,7 @@ class IDX:
     IDX Provider Class
     """
 
-    def __init__(self, is_full_retrieve=True, is_second_page=True):
+    def __init__(self, is_full_retrieve=True, is_second_page=False):
         """
         Initializes the IDX provider with a Chrome WebDriver instance and sets the base URL for the IDX website.
         """
