@@ -204,19 +204,19 @@ class KeyAnalysisAnalyser:
         for stock in self.stocks:
             row = [
                 stock.ticker,
-                stock.key_analysis.normal_price,
-                stock.stock_price.close,
-                stock.key_analysis.price_to_equity_discount,
-                stock.key_analysis.relative_pe_ratio_ttm,
-                stock.key_analysis.eps_growth,
-                stock.key_analysis.debt_to_total_assets_ratio,
-                stock.key_analysis.liquidity_differential,
-                stock.key_analysis.cce,
-                stock.key_analysis.operating_efficiency,
-                stock.key_analysis.dividend_payout_efficiency,
-                stock.key_analysis.yearly_price_change,
-                stock.key_analysis.composite_rank,
-                stock.key_analysis.net_debt_to_equity_ratio,
+                getattr(stock.key_analysis, "normal_price", 0),
+                getattr(stock.stock_price, "close", 0),
+                getattr(stock.key_analysis, "price_to_equity_discount", 0),
+                getattr(stock.key_analysis, "relative_pe_ratio_ttm", 0),
+                getattr(stock.key_analysis, "eps_growth", 0),
+                getattr(stock.key_analysis, "debt_to_total_assets_ratio", 0),
+                getattr(stock.key_analysis, "liquidity_differential", 0),
+                getattr(stock.key_analysis, "cce", 0),
+                getattr(stock.key_analysis, "operating_efficiency", 0),
+                getattr(stock.key_analysis, "dividend_payout_efficiency", 0),
+                getattr(stock.key_analysis, "yearly_price_change", 0),
+                getattr(stock.key_analysis, "composite_rank", 0),
+                getattr(stock.key_analysis, "net_debt_to_equity_ratio", 0),
             ]
 
             sheet_values.append(row)
