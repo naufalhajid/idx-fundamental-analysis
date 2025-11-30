@@ -23,8 +23,16 @@ crawl4ai = "^0.3.4"
 phidata = "^2.4.42"
 ollama = "^0.3.3"
 sqlalchemy = "^2.0.35"
+selenium-wire = "^5.1.0"
+blinker = "<1.8.0"
+setuptools = "^80.9.0"
 
 
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[dependency-groups]
+dev = [
+    "pytest (>=9.0.1,<10.0.0)"
+]
