@@ -7,6 +7,10 @@ Indonesian
 Stock Exchange (IDX). It fetches stock data and key statistics using Selenium, requests, and various provider APIs, and
 stores the resultant data in Google Sheets or local Excel file for easy access and analysis.
 
+
+https://github.com/user-attachments/assets/13395cf7-1e3e-4153-8d20-40d4755a4c6d
+
+
 ## Features
 
 - **Fetch Stock Data from IDX**: Use Selenium web driver to scrape stock data from IDX.
