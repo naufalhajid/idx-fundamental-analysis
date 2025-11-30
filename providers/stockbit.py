@@ -78,7 +78,11 @@ class StockBit:
         Returns:
             Self
         """
+        processed = 1
         for stock in self.stocks:
+            logger.info(
+                f"Processing key statistic for: {stock.ticker} ({processed}/{len(self.stocks)})"
+            )
             self.key_statistic = self.key_statistic_by_stock(stock)
 
             if self.key_statistic:
@@ -86,6 +90,7 @@ class StockBit:
 
             time.sleep(0.1)
             logger.debug(stock)
+            processed += 1
 
         return self
 
@@ -443,10 +448,17 @@ class StockBit:
         Returns:
         - self: The instance of the class, allowing for method chaining.
         """
+        processed = 1
         for stock in self.stocks:
+            logger.info(
+                f"Processing stock price for: {stock.ticker} ({processed}/{len(self.stocks)})"
+            )
             response = self.stock_price_by_stock(stock)
 
             if response == {}:
+                logger.warning(
+                    f"Skipped to fetch stock price for {stock.ticker} because empty response!"
+                )
                 continue
 
             data = response["data"]
@@ -471,6 +483,7 @@ class StockBit:
             time.sleep(0.1)
 
             logger.debug(stock)
+            processed += 1
 
         return self
 
@@ -523,7 +536,11 @@ class StockBit:
         Returns:
         - self: The instance of the class, allowing for method chaining.
         """
+        processed = 1
         for stock in self.stocks:
+            logger.info(
+                f"Processing stream data for: {stock.ticker} ({processed}/{len(self.stocks)})"
+            )
             response_stream_pinned = self.stream_pinned_by_stock(stock)
             response_stream = self.stream_by_stock(stock)
 
@@ -555,7 +572,7 @@ class StockBit:
                             stock.sentiment.append(sentiment)
 
             time.sleep(0.1)
-
+            processed += 1
             logger.debug(stock)
 
         return self

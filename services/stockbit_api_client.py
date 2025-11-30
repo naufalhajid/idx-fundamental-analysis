@@ -5,6 +5,7 @@ import time
 import requests
 
 from utils.logger_config import logger
+from services.stockbit_token_fetcher import StockbitTokenFetcher
 
 
 class StockbitApiClient:
@@ -123,41 +124,34 @@ class StockbitApiClient:
         """
         Login to Stockbit API.
         """
-        url = "https://api.stockbit.com/v2.5/login"
-
-        params = {
-            "user": os.getenv("STOCKBIT_USERNAME"),
-            "password": os.getenv("STOCKBIT_PASSWORD"),
-        }
-
         self.headers["Authorization"] = None
 
+        token = None
+        refresh_token = None
+
+        fetcher = None
         try:
-            response = requests.post(url, headers=self.headers, params=params)
+            fetcher = StockbitTokenFetcher()
+            token, refresh_token = fetcher.fetch_tokens()
+        except Exception as e:
+            logger.error(f"Failed to fetch tokens via StockbitTokenFetcher: {e}")
+        finally:
+            if fetcher is not None:
+                try:
+                    fetcher.close()
+                except Exception:
+                    pass
 
-            if response.status_code == 200:
-                logger.info("Logged in successfully with username and password!")
+        if token:
+            logger.info("Logged in successfully via StockbitTokenFetcher!")
+            self.headers["Authorization"] = f"Bearer {token}"
+            self._write_token(token, refresh_token or "")
+            self.is_authorise = True
+        else:
+            logger.error("Failed to log in via StockbitTokenFetcher.")
+            self.is_authorise = False
 
-                token = response.json()["data"]["access_token"]
-                refresh_token = response.json()["data"]["refresh_token"]
-
-                self.headers["Authorization"] = f"Bearer {token}"
-
-                self._write_token(token, refresh_token)
-
-                self.is_authorise = True
-            else:
-                logger.error(
-                    f"Error: Received status code {response.status_code} - {response.text}"
-                )
-                self.is_authorise = False
-
-            time.sleep(1)
-
-        except requests.exceptions.RequestException as e:
-            logger.error(f"Request failed: {e}")
-        except KeyError as e:
-            logger.error(f"Key error: {e}")
+        time.sleep(1)
 
     def _refresh_token(self):
         """
