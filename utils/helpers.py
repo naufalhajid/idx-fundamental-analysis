@@ -67,7 +67,11 @@ def parse_key_statistic_results_item_value(
         name = result_item[key_index]["fitem"]["name"]
         logger.debug({name: value})
     except IndexError:
-        logger.warning(f"IndexError: {result_item}")
+        logger.debug(
+            "Missing key statistic item at index %s (available=%s); defaulting to 0.0",
+            key_index,
+            len(result_item),
+        )
         return 0.0
 
     if name in ["Latest Dividend Ex-Date"]:

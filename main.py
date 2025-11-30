@@ -42,7 +42,7 @@ def main():
     # Retrieve stocks from IDX
     idx = IDX(is_full_retrieve=args.full_retrieve)
     stocks = idx.stocks()
-    logger.info("Stocks: {}".format(stocks))
+    logger.debug("Stocks: {}".format(stocks))
     logger.info("Total Stocks: {}".format(len(stocks)))
 
     # Process stocks key statistics, price, fundamental, and stream data (news) from Stockbit

@@ -9,3 +9,6 @@ logs
 *.http
 *.xlsx
 *.cache
+
+
+__pycache__
