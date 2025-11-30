@@ -106,7 +106,7 @@ verifying the output in the Google Sheet.
 
 ### File [Limited only 10 stocks]
 
-- [IDX Fundamental Analysis 05-10-2024](https://drive.zeroinside.id/s/2eakERgsZCMfRPx)
+- [IDX Fundamental Analysis 05-10-2024](https://drive.zeroinside.id/s/GpcEYfc2MAbCS4N)
 
 ### Screencast
 
