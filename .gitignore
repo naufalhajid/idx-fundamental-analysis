@@ -2,6 +2,7 @@
 .idea
 .venv
 logs
+__pycache__
 
 # exclude files
 .env
@@ -9,6 +10,4 @@ logs
 *.http
 *.xlsx
 *.cache
-
-
-__pycache__
+*.db
