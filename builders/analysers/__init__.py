@@ -3,7 +3,7 @@ from builders.analysers.key_analysis_analyser import KeyAnalysisAnalyser
 from builders.analysers.sentiment_analyser import SentimentAnalyser
 from builders.analysers.stock_price_analyser import StockPriceAnalyser
 from schemas.stock import Stock
-from schemas.builder import BuilderOutput
+from schemas.builder import BuilderOutputType
 
 
 class Analyser:
@@ -13,15 +13,15 @@ class Analyser:
         self.sentiment_analyser = SentimentAnalyser(stocks=stocks)
         self.key_analysis_analyser = KeyAnalysisAnalyser(stocks=stocks)
         self.stock_price_analyser = StockPriceAnalyser(stocks=stocks)
-        self.output: BuilderOutput = None
+        self.output: BuilderOutputType = None
 
-    def build(self, output: BuilderOutput, title: str):
+    def build(self, output: BuilderOutputType, title: str):
         self.output = output
-        if output == BuilderOutput.EXCEL:
+        if output == BuilderOutputType.EXCEL:
             from builders.excel import Excel
 
             self._build_output(Excel, title)
-        elif output == BuilderOutput.SPREADSHEET:
+        elif output == BuilderOutputType.SPREADSHEET:
             from builders.spreadsheet import Spreadsheet
 
             self._build_output(Spreadsheet, title)
@@ -42,5 +42,5 @@ class Analyser:
         builder.insert_key_statistic()
         builder.insert_sentiment()
 
-        if self.output == BuilderOutput.EXCEL:
+        if self.output == BuilderOutputType.EXCEL:
             builder.save()

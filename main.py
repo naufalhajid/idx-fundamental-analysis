@@ -9,7 +9,7 @@ from builders.database_builder import DatabaseBuilder
 from db import database
 from providers.idx import IDX
 from providers.stockbit import StockBit
-from schemas.builder import BuilderOutput
+from schemas.builder import BuilderOutputType
 from utils.logger_config import logger
 
 load_dotenv()
@@ -26,9 +26,9 @@ def parse_arguments():
     parser.add_argument(
         "-o",
         "--output-format",
-        type=BuilderOutput,
-        choices=list(BuilderOutput),
-        default=BuilderOutput.SPREADSHEET,
+        type=BuilderOutputType,
+        choices=list(BuilderOutputType),
+        default=BuilderOutputType.SPREADSHEET,
         help="Specify the output format: 'spreadsheet' for Google Spreadsheet, 'excel' for Excel file",
     )
     return parser.parse_args()

@@ -1,6 +1,6 @@
 from enum import Enum
 
 
-class BuilderOutput(str, Enum):
+class BuilderOutputType(str, Enum):
     EXCEL = "excel"
     SPREADSHEET = "spreadsheet"
