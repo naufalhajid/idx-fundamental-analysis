@@ -2,9 +2,8 @@ from builders.analysers.fundamental_analyser import FundamentalAnalyser
 from builders.analysers.key_analysis_analyser import KeyAnalysisAnalyser
 from builders.analysers.sentiment_analyser import SentimentAnalyser
 from builders.analysers.stock_price_analyser import StockPriceAnalyser
-from builders.excel import Excel
-from builders.spreadsheet import Spreadsheet
 from schemas.stock import Stock
+from schemas.builder import BuilderOutput
 
 
 class Analyser:
@@ -14,11 +13,17 @@ class Analyser:
         self.sentiment_analyser = SentimentAnalyser(stocks=stocks)
         self.key_analysis_analyser = KeyAnalysisAnalyser(stocks=stocks)
         self.stock_price_analyser = StockPriceAnalyser(stocks=stocks)
+        self.output: BuilderOutput = None
 
-    def build(self, output: str, title: str):
-        if output == "excel":
+    def build(self, output: BuilderOutput, title: str):
+        self.output = output
+        if output == BuilderOutput.EXCEL:
+            from builders.excel import Excel
+
             self._build_output(Excel, title)
-        elif output == "spreadsheet":
+        elif output == BuilderOutput.SPREADSHEET:
+            from builders.spreadsheet import Spreadsheet
+
             self._build_output(Spreadsheet, title)
         else:
             raise ValueError("Unsupported output method")
@@ -37,5 +42,5 @@ class Analyser:
         builder.insert_key_statistic()
         builder.insert_sentiment()
 
-        if isinstance(builder, Excel):
+        if self.output == BuilderOutput.EXCEL:
             builder.save()

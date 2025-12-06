@@ -1,3 +1,5 @@
+from sqlalchemy import select
+
 from builders.builder_interface import BuilderInterface
 from db import (
     StockPrice,
@@ -22,13 +24,16 @@ from db.models.stock import Stock
 
 from db.session import get_session
 from schemas.stock import Stock as StockSchema
+from utils.logger_config import logger
 
 
 class DatabaseBuilder(BuilderInterface):
     def __init__(self, stocks=[StockSchema]):
+        logger.info("Database Builder started")
         self.stocks = stocks
 
     def insert_stock(self):
+        logger.info("Storing stocks")
         for stock in self.stocks:
             with get_session() as session:
                 stock_model = Stock(
@@ -42,8 +47,32 @@ class DatabaseBuilder(BuilderInterface):
 
                 session.add(stock_model)
 
-    def insert_key_statistic(self):
+    def update_or_insert_stock(self):
+        logger.info("Updating or inserting stocks")
+        for stock in self.stocks:
+            with get_session() as session:
+                query = select(Stock).where(Stock.ticker == stock.ticker)
 
+                existing_stock = session.scalars(query).one_or_none()
+
+                if existing_stock:
+                    existing_stock.market_cap = stock.market_cap
+                    existing_stock.note = stock.note
+                    existing_stock.home_page = stock.home_page
+                else:
+                    stock_model = Stock(
+                        ticker=stock.ticker,
+                        name=stock.name,
+                        ipo_date=stock.ipo_date,
+                        note=stock.note,
+                        market_cap=stock.market_cap,
+                        home_page=stock.home_page,
+                    )
+
+                    session.add(stock_model)
+
+    def insert_key_statistic(self):
+        logger.info("Storing key statistics")
         for stock in self.stocks:
             with get_session() as session:
                 # Create instances of related models
@@ -118,6 +147,7 @@ class DatabaseBuilder(BuilderInterface):
                 session.add(fundamental)
 
     def insert_key_analysis(self):
+        logger.info("Storing Key Analysis")
         for stock in self.stocks:
             with get_session() as session:
                 key_analysis = KeyAnalysis(
@@ -138,6 +168,7 @@ class DatabaseBuilder(BuilderInterface):
                 session.add(key_analysis)
 
     def insert_sentiment(self):
+        logger.info("Storing Sentiment")
         for stock in self.stocks:
             for sentiment in stock.sentiment:
                 with get_session() as session:
@@ -150,6 +181,7 @@ class DatabaseBuilder(BuilderInterface):
                     session.add(sentiment)
 
     def insert_stock_price(self):
+        logger.info("Storing Stock Price")
         for stock in self.stocks:
             with get_session() as session:
                 stock_price = StockPrice(

@@ -1,4 +1,5 @@
 import argparse
+import time
 from datetime import date
 
 from dotenv import load_dotenv
@@ -8,6 +9,7 @@ from builders.database_builder import DatabaseBuilder
 from db import database
 from providers.idx import IDX
 from providers.stockbit import StockBit
+from schemas.builder import BuilderOutput
 from utils.logger_config import logger
 
 load_dotenv()
@@ -24,8 +26,9 @@ def parse_arguments():
     parser.add_argument(
         "-o",
         "--output-format",
-        choices=["spreadsheet", "excel"],
-        default="spreadsheet",
+        type=BuilderOutput,
+        choices=list(BuilderOutput),
+        default=BuilderOutput.SPREADSHEET,
         help="Specify the output format: 'spreadsheet' for Google Spreadsheet, 'excel' for Excel file",
     )
     return parser.parse_args()
@@ -33,11 +36,12 @@ def parse_arguments():
 
 def main():
     logger.info("IDX Composite Fundamental Analysis")
+    start_time = time.time()
 
     args = parse_arguments()
 
     # Setup database
-    database.setup_db(is_drop_table=True)
+    database.setup_db(is_drop_table=False)
 
     # Retrieve stocks from IDX
     idx = IDX(is_full_retrieve=args.full_retrieve)
@@ -54,11 +58,15 @@ def main():
 
     # Populate to database
     database_builder = DatabaseBuilder(stocks=stocks)
-    database_builder.insert_stock()
+    database_builder.update_or_insert_stock()
     database_builder.insert_key_statistic()
     database_builder.insert_key_analysis()
     database_builder.insert_stock_price()
     database_builder.insert_sentiment()
+
+    elapsed = time.time() - start_time
+    elapsed_minutes = elapsed / 60
+    logger.info(f"Elapsed time: {elapsed_minutes:.2f} minutes")
 
 
 if __name__ == "__main__":
