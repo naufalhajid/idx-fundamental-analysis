@@ -7,9 +7,7 @@ Indonesian
 Stock Exchange (IDX). It fetches stock data and key statistics using Selenium, requests, and various provider APIs, and
 stores the resultant data in Google Sheets or local Excel file for easy access and analysis.
 
-
 https://github.com/user-attachments/assets/13395cf7-1e3e-4153-8d20-40d4755a4c6d
-
 
 ## Features
 
@@ -32,56 +30,57 @@ https://github.com/user-attachments/assets/13395cf7-1e3e-4153-8d20-40d4755a4c6d
 
 1. Clone the repository:
 
-    ```bash
-    git clone https://github.com/yourusername/idx-fundamental.git
-    cd idx-fundamental
-    ```
+   ```bash
+   git clone https://github.com/yourusername/idx-fundamental.git
+   cd idx-fundamental
+   ```
 
 2. Install dependencies:
 
-    ```bash
-    poetry install --no-root
-    ```
+   ```bash
+   poetry install --no-root
+   ```
 
 3. Set up environment variables:
 
    Create a `.env` file in the project root directory and add the following environment variables:
 
-    ```env
-    GOOGLE_SERVICE_ACCOUNT='{
-      "type": "service_account",
-      "project_id": "...",
-      "private_key_id": "...",
-      "private_key": "-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n",
-      "client_email": "...",
-      "client_id": "...",
-      "auth_uri": "https://accounts.google.com/o/oauth2/auth",
-      "token_uri": "https://oauth2.googleapis.com/token",
-      "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
-      "client_x509_cert_url": "..."
-    }'
-  
-    GOOGLE_DRIVE_EMAILS='["email1@gmail.com", "email2@gmail.com"]'
-    STOCKBIT_USERNAME='hello@example.com'
-    STOCKBIT_PASSWORD='pwd'
-    ```
+   ```env
+   GOOGLE_SERVICE_ACCOUNT='{
+     "type": "service_account",
+     "project_id": "...",
+     "private_key_id": "...",
+     "private_key": "-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n",
+     "client_email": "...",
+     "client_id": "...",
+     "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+     "token_uri": "https://oauth2.googleapis.com/token",
+     "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+     "client_x509_cert_url": "..."
+   }'
+
+   GOOGLE_DRIVE_EMAILS='["email1@gmail.com", "email2@gmail.com"]'
+   STOCKBIT_USERNAME='hello@example.com'
+   STOCKBIT_PASSWORD='pwd'
+   ```
 
 ## Usage
 
 1. Run the main script:
 
-    ```bash
-    python main.py -f -o excel
-    ```
-    - The `-f` or `--full-retrieve` argument is optional. If included, the script will retrieve full stock data from
-      IDX.
-      If not set, it only retrieve first page which is only 10 stocks.
+   ```bash
+   python main.py -f -o excel
+   ```
 
-    - The `-o` or `--output-format` argument with two choices: `spreadsheet` and `excel`. Output will be saved into
-      Google
-      Sheet or Excel local file.
-    - This will start the process of fetching stock data from IDX, retrieving key statistics from StockBit, and
-      inserting them into a Google Sheet.
+   - The `-f` or `--full-retrieve` argument is optional. If included, the script will retrieve full stock data from
+     IDX.
+     If not set, it only retrieve first page which is only 10 stocks.
+
+   - The `-o` or `--output-format` argument with two choices: `spreadsheet` and `excel`. Output will be saved into
+     Google
+     Sheet or Excel local file inside `output` folder.
+   - This will start the process of fetching stock data from IDX, retrieving key statistics from StockBit, and
+     inserting them into a Google Sheet.
 
 ## Configuration
 
@@ -100,7 +99,8 @@ Contributions are welcome! Feel free to open issues or submit pull requests. Ple
 ## Testing
 
 Currently, the project does not include unit tests. However, testing can be done by running the `main.py` script and
-verifying the output in the Google Sheet.
+verifying the output in the Google Sheet if argument `-o spreadsheet` is used. If argument `-o excel` is used, the output
+will be saved in the `./output` folder.
 
 ## Result
 

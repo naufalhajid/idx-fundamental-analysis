@@ -17,7 +17,7 @@ class Excel(BuilderInterface):
         key_analysis_analyser: KeyAnalysisAnalyser,
         stock_price_analyser: StockPriceAnalyser,
     ):
-        self.filename = f"{title}.xlsx"
+        self.filename = f"./output/{title}.xlsx"
         self.fundamental_analyser = fundamental_analyser
         self.sentiment_analyser = sentiment_analyser
         self.key_analysis_analyser = key_analysis_analyser
