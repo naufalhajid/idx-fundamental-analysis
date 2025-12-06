@@ -1,23 +1,22 @@
-from contextlib import contextmanager
+from contextlib import contextmanager, asynccontextmanager
 
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import sessionmaker, scoped_session
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
 from db import DB
 
-# Create engine
 engine = DB().engine
+engine_async = DB().engine_async
 
-# Create a configured "Session" class
 SessionFactory = sessionmaker(bind=engine)
+AsyncSessionFactory = async_sessionmaker(bind=engine_async, expire_on_commit=False)
 
-# Create a scoped session
 Session = scoped_session(SessionFactory)
 
 
 @contextmanager
 def get_session():
-    """Provide a transactional scope around a series of operations."""
     session = Session()
     try:
         yield session
@@ -27,3 +26,16 @@ def get_session():
         raise
     finally:
         session.close()
+
+
+@asynccontextmanager
+async def get_async_session():
+    session: AsyncSession = AsyncSessionFactory()
+    try:
+        yield session
+        await session.commit()
+    except SQLAlchemyError:
+        await session.rollback()
+        raise
+    finally:
+        await session.close()

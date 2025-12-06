@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-
+from datetime import datetime
 from schemas import BaseDataClass
 
 
@@ -17,3 +17,5 @@ class KeyAnalysis(BaseDataClass):
     yearly_price_change: float = 0.0
     composite_rank: float = 0.0
     net_debt_to_equity_ratio: float = 0.0
+    created_at: datetime = datetime.now()
+    updated_at: datetime = datetime.now()

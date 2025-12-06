@@ -1,13 +1,14 @@
 import logging
-import os
 import sys
 
 from dotenv import load_dotenv
 from loguru import logger
 
+from core.settings import settings
+
 load_dotenv()
 
-level = os.getenv("LOG_LEVEL", "INFO")
+level = settings.LOG_LEVEL
 
 # Remove default Loguru sink (stderr, level=DEBUG)
 logger.remove()
@@ -15,13 +16,7 @@ logger.remove()
 # Console sink with dynamic level
 logger.add(
     sys.stderr,
-    format=(
-        "<green>{time:YYYY-MM-DD HH:mm:ss.SSS}</green> | "
-        "<level>{level: <8}</level> | "
-        "<cyan>{file}</cyan>:<cyan>{line}</cyan> "
-        "<cyan>{function}</cyan> "
-        "<level>{message}</level>"
-    ),
+    format=settings.LOG_FORMAT,
     level=level,
     colorize=True,  # ensure ANSI colors are used
 )
@@ -29,7 +24,7 @@ logger.add(
 
 # Configure the logger to write to a log file
 logger.add(
-    "logs/app.log",
+    settings.LOG_APP_FILENAME,
     format=("{time:YYYY-MM-DD HH:mm:ss.SSS} {level: <8} {file}:{line} | {message}"),
     level=level,
     rotation="1 MB",  # Rotate after the log file reaches 1 MB

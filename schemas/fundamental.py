@@ -1,6 +1,8 @@
-from dataclasses import dataclass
+from ast import Div
+from dataclasses import dataclass, field
 
 from schemas import BaseDataClass
+from datetime import datetime
 
 
 @dataclass
@@ -150,16 +152,42 @@ class Stat(BaseDataClass):
 
 @dataclass
 class Fundamental(BaseDataClass):
-    stat: Stat = Stat
-    current_valuation: CurrentValuation = CurrentValuation
-    per_share: PerShare = PerShare
-    solvency: Solvency = Solvency
-    management_effectiveness: ManagementEffectiveness = ManagementEffectiveness
-    profitability: Profitability = Profitability
-    growth: Growth = Growth
-    dividend: Dividend = Dividend
-    market_rank: MarketRank = MarketRank
-    income_statement: IncomeStatement = IncomeStatement
-    balance_sheet: BalanceSheet = BalanceSheet
-    cash_flow_statement: CashFlowStatement = CashFlowStatement
-    price_performance: PricePerformance = PricePerformance
+    stat: Stat = field(default_factory=Stat)
+    current_valuation: CurrentValuation = field(default_factory=CurrentValuation)
+    per_share: PerShare = field(default_factory=PerShare)
+    solvency: Solvency = field(default_factory=Solvency)
+    management_effectiveness: ManagementEffectiveness = field(
+        default_factory=ManagementEffectiveness
+    )
+    profitability: Profitability = field(default_factory=Profitability)
+    growth: Growth = field(default_factory=Growth)
+    dividend: Dividend = field(default_factory=Dividend)
+    market_rank: MarketRank = field(default_factory=MarketRank)
+    income_statement: IncomeStatement = field(default_factory=IncomeStatement)
+    balance_sheet: BalanceSheet = field(default_factory=BalanceSheet)
+    cash_flow_statement: CashFlowStatement = field(default_factory=CashFlowStatement)
+    price_performance: PricePerformance = field(default_factory=PricePerformance)
+    created_at: datetime = datetime.now()
+    updated_at: datetime = datetime.now()
+
+    @classmethod
+    def from_orm(cls, orm_obj):
+        return cls(
+            stat=Stat.from_orm(orm_obj.stat),
+            current_valuation=CurrentValuation.from_orm(orm_obj.current_valuation),
+            per_share=PerShare.from_orm(orm_obj.per_share),
+            solvency=Solvency.from_orm(orm_obj.solvency),
+            management_effectiveness=ManagementEffectiveness.from_orm(
+                orm_obj.management_effectiveness
+            ),
+            profitability=Profitability.from_orm(orm_obj.profitability),
+            growth=Growth.from_orm(orm_obj.growth),
+            dividend=Dividend.from_orm(orm_obj.dividend),
+            market_rank=MarketRank.from_orm(orm_obj.market_rank),
+            income_statement=IncomeStatement.from_orm(orm_obj.income_statement),
+            balance_sheet=BalanceSheet.from_orm(orm_obj.balance_sheet),
+            cash_flow_statement=CashFlowStatement.from_orm(orm_obj.cash_flow_statement),
+            price_performance=PricePerformance.from_orm(orm_obj.price_performance),
+            created_at=getattr(orm_obj, "created_at", datetime.now()),
+            updated_at=getattr(orm_obj, "updated_at", datetime.now()),
+        )

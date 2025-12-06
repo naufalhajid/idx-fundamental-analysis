@@ -31,21 +31,3 @@ class BaseModel(Base):
     id: Mapped[INT_PK]
     created_at: Mapped[TIMESTAMP]
     updated_at: Mapped[UPDATED_TIMESTAMP]
-
-    def save(self, session):
-        session.add(self)
-        session.commit()
-
-    def delete(self, session):
-        session.delete(self)
-        session.commit()
-
-    @classmethod
-    def all(cls, session):
-        stmt = select(cls)
-        return session.scalars(stmt)
-
-    @classmethod
-    def find_by_id(cls, session, id):
-        stmt = select(cls).where(cls.id == id)
-        return session.scalars(stmt).first()

@@ -20,8 +20,3 @@ class Stock(BaseModel):
     fundamentals: Mapped[List["Fundamental"]] = relationship(back_populates="stock")
     sentiments: Mapped[List["Sentiment"]] = relationship(back_populates="stock")
     key_analyses: Mapped[List["KeyAnalysis"]] = relationship(back_populates="stock")
-
-    @classmethod
-    def find_by_ticker(cls, session, ticker):
-        stmt = select(cls).where(cls.ticker == ticker)
-        return session.scalars(stmt).first()

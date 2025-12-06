@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-
+from datetime import datetime
 from schemas import BaseDataClass
 
 
@@ -19,3 +19,5 @@ class StockPrice(BaseDataClass):
     frequency: float = 0.0
     fsell: float = 0.0
     fbuy: float = 0.0
+    created_at: datetime = datetime.now()
+    updated_at: datetime = datetime.now()

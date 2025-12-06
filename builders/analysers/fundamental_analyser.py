@@ -29,11 +29,11 @@ class FundamentalAnalyser:
         sheet_values = [header]
         for stock in self.stocks:
             row = [
-                stock.fundamental.stock.ticker,
-                stock.fundamental.stock.name,
-                stock.fundamental.stock.ipo_date,
-                stock.fundamental.stock.market_cap,
-                stock.fundamental.stock.note,
+                stock.ticker,
+                stock.name,
+                stock.ipo_date,
+                stock.market_cap,
+                stock.note,
             ]
             sheet_values.append(row)
 
@@ -146,7 +146,7 @@ class FundamentalAnalyser:
 
         for stock in self.stocks:
             row = [
-                stock.fundamental.stock.ticker,
+                stock.ticker,
                 stock.fundamental.current_valuation.current_pe_ratio_annual,
                 stock.fundamental.current_valuation.current_pe_ratio_ttm,
                 stock.fundamental.current_valuation.forward_pe_ratio,
