@@ -15,4 +15,15 @@ async def get_stock_by_ticker(ticker: str, db: AsyncSession = Depends(get_db)) -
     if stock is None:
         raise HTTPException(status_code=404, detail="Stock not found")
 
-    return StockSchema.from_orm(stock)
+    return StockSchema(
+        ticker=stock.ticker,
+        name=stock.name,
+        ipo_date=stock.ipo_date,
+        note=stock.note,
+        market_cap=stock.market_cap,
+        home_page=stock.home_page,
+        fundamental=None,
+        key_analysis=None,
+        sentiment=None,
+        stock_price=None,
+    )
