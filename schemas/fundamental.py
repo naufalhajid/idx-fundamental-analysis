@@ -1,11 +1,10 @@
-from ast import Div
-from dataclasses import dataclass, field
-
-from schemas import BaseDataClass
 from datetime import datetime
 
+from pydantic import Field
 
-@dataclass
+from schemas import BaseDataClass
+
+
 class CurrentValuation(BaseDataClass):
     current_pe_ratio_annual: float = 0.0
     current_pe_ratio_ttm: float = 0.0
@@ -23,7 +22,6 @@ class CurrentValuation(BaseDataClass):
     peg_forward: float = 0.0
 
 
-@dataclass
 class PerShare(BaseDataClass):
     current_eps_ttm: float = 0
     current_eps_annualised: float = 0
@@ -33,7 +31,6 @@ class PerShare(BaseDataClass):
     free_cashflow_per_share_ttm: float = 0
 
 
-@dataclass
 class Solvency(BaseDataClass):
     current_ratio_quarter: float = 0
     quick_ratio_quarter: float = 0
@@ -47,7 +44,6 @@ class Solvency(BaseDataClass):
     altman_z_score_modified: float = 0
 
 
-@dataclass
 class ManagementEffectiveness(BaseDataClass):
     return_on_assets_ttm: float = 0
     return_on_equity_ttm: float = 0
@@ -62,21 +58,18 @@ class ManagementEffectiveness(BaseDataClass):
     inventory_turnover_ttm: float = 0
 
 
-@dataclass
 class Profitability(BaseDataClass):
     gross_profit_margin_quarter: float = 0.0
     operating_profit_margin_quarter: float = 0.0
     net_profit_margin_quarter: float = 0.0
 
 
-@dataclass
 class Growth(BaseDataClass):
     revenue_quarter_yoy_growth: float = 0.0
     gross_profit_quarter_yoy_growth: float = 0.0
     net_income_quarter_yoy_growth: float = 0.0
 
 
-@dataclass
 class Dividend(BaseDataClass):
     dividend: float = 0.0
     dividend_ttm: float = 0.0
@@ -85,7 +78,6 @@ class Dividend(BaseDataClass):
     latest_dividend_ex_date: str = ""
 
 
-@dataclass
 class MarketRank(BaseDataClass):
     piotroski_f_score: float = 0.0
     eps_rating: float = 0.0
@@ -98,7 +90,6 @@ class MarketRank(BaseDataClass):
     rank_near_52_weeks_high: float = 0.0
 
 
-@dataclass
 class IncomeStatement(BaseDataClass):
     revenue_ttm: float = 0.0
     gross_profit_ttm: float = 0.0
@@ -106,7 +97,6 @@ class IncomeStatement(BaseDataClass):
     net_income_ttm: float = 0.0
 
 
-@dataclass
 class BalanceSheet(BaseDataClass):
     cash_quarter: float = 0.0
     total_assets_quarter: float = 0.0
@@ -119,7 +109,6 @@ class BalanceSheet(BaseDataClass):
     net_debt_quarter: float = 0.0
 
 
-@dataclass
 class CashFlowStatement(BaseDataClass):
     cash_from_operations_ttm: float = 0.0
     cash_from_investing_ttm: float = 0.0
@@ -128,7 +117,6 @@ class CashFlowStatement(BaseDataClass):
     free_cash_flow_ttm: float = 0.0
 
 
-@dataclass
 class PricePerformance(BaseDataClass):
     one_week_price_returns: float = 0.0
     three_month_price_returns: float = 0.0
@@ -143,30 +131,28 @@ class PricePerformance(BaseDataClass):
     fifty_two_week_low: float = 0.0
 
 
-@dataclass
 class Stat(BaseDataClass):
     current_share_outstanding: float = 0.0
     market_cap: float = 0.0
     enterprise_value: float = 0.0
 
 
-@dataclass
 class Fundamental(BaseDataClass):
-    stat: Stat = field(default_factory=Stat)
-    current_valuation: CurrentValuation = field(default_factory=CurrentValuation)
-    per_share: PerShare = field(default_factory=PerShare)
-    solvency: Solvency = field(default_factory=Solvency)
-    management_effectiveness: ManagementEffectiveness = field(
+    stat: Stat = Field(default_factory=Stat)
+    current_valuation: CurrentValuation = Field(default_factory=CurrentValuation)
+    per_share: PerShare = Field(default_factory=PerShare)
+    solvency: Solvency = Field(default_factory=Solvency)
+    management_effectiveness: ManagementEffectiveness = Field(
         default_factory=ManagementEffectiveness
     )
-    profitability: Profitability = field(default_factory=Profitability)
-    growth: Growth = field(default_factory=Growth)
-    dividend: Dividend = field(default_factory=Dividend)
-    market_rank: MarketRank = field(default_factory=MarketRank)
-    income_statement: IncomeStatement = field(default_factory=IncomeStatement)
-    balance_sheet: BalanceSheet = field(default_factory=BalanceSheet)
-    cash_flow_statement: CashFlowStatement = field(default_factory=CashFlowStatement)
-    price_performance: PricePerformance = field(default_factory=PricePerformance)
+    profitability: Profitability = Field(default_factory=Profitability)
+    growth: Growth = Field(default_factory=Growth)
+    dividend: Dividend = Field(default_factory=Dividend)
+    market_rank: MarketRank = Field(default_factory=MarketRank)
+    income_statement: IncomeStatement = Field(default_factory=IncomeStatement)
+    balance_sheet: BalanceSheet = Field(default_factory=BalanceSheet)
+    cash_flow_statement: CashFlowStatement = Field(default_factory=CashFlowStatement)
+    price_performance: PricePerformance = Field(default_factory=PricePerformance)
     created_at: datetime = datetime.now()
     updated_at: datetime = datetime.now()
 

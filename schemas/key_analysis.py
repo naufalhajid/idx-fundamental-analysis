@@ -1,9 +1,8 @@
-from dataclasses import dataclass
 from datetime import datetime
+
 from schemas import BaseDataClass
 
 
-@dataclass
 class KeyAnalysis(BaseDataClass):
     normal_price: float = 0.0
     price_to_equity_discount: float = 0.0

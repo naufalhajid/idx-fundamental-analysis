@@ -1,15 +1,15 @@
-from dataclasses import dataclass, field
-from typing import List
+from datetime import datetime
+from typing import List, Optional
+
+from pydantic import Field
 
 from schemas import BaseDataClass
 from schemas.fundamental import Fundamental
 from schemas.key_analysis import KeyAnalysis
 from schemas.sentiment import Sentiment
 from schemas.stock_price import StockPrice
-from datetime import datetime
 
 
-@dataclass
 class Stock(BaseDataClass):
     ticker: str
     name: str = ""
@@ -17,10 +17,10 @@ class Stock(BaseDataClass):
     note: str = ""
     market_cap: float = 0.0
     home_page: str = ""
-    stock_price: StockPrice = field(default_factory=StockPrice)
-    sentiment: List[Sentiment] = field(default_factory=lambda: [Sentiment()])
-    fundamental: Fundamental = field(default_factory=Fundamental)
-    key_analysis: KeyAnalysis = field(default_factory=KeyAnalysis)
+    stock_price: Optional[StockPrice] = Field(default_factory=StockPrice)
+    sentiment: Optional[List[Sentiment]] = Field(default_factory=lambda: [Sentiment()])
+    fundamental: Optional[Fundamental] = Field(default_factory=Fundamental)
+    key_analysis: Optional[KeyAnalysis] = Field(default_factory=KeyAnalysis)
     created_at: datetime = datetime.now()
     updated_at: datetime = datetime.now()
 

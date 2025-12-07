@@ -1,9 +1,8 @@
-from dataclasses import dataclass
 from datetime import datetime
+
 from schemas import BaseDataClass
 
 
-@dataclass
 class StockPrice(BaseDataClass):
     price: float = 0.0
     volume: int = 0
