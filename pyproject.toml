@@ -19,7 +19,6 @@ dependencies = [
     "ollama>=0.3.3",
     "sqlalchemy>=2.0.35",
     "selenium-wire>=5.1.0",
-    "blinker<1.8.0",
     "setuptools>=80.9.0",
     "fastapi>=0.123.10",
     "aiosqlite>=0.21.0",
