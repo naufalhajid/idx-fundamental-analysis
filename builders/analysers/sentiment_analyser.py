@@ -39,7 +39,7 @@ class SentimentAnalyser:
                     sentiment.content,
                     sentiment.rate,
                     sentiment.category,
-                    sentiment.posted_at.strftime("%Y-%m-%d %H:%M:%S"),
+                    sentiment.posted_at,
                 ]
 
                 sheet_values.append(row)
