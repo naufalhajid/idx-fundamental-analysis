@@ -31,7 +31,7 @@ https://github.com/user-attachments/assets/13395cf7-1e3e-4153-8d20-40d4755a4c6d
 1. Clone the repository:
 
    ```bash
-   git clone https://github.com/yourusername/idx-fundamental.git
+   git clone https://github.com/noczero/idx-fundamental.git
    cd idx-fundamental
    ```
 
