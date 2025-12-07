@@ -34,12 +34,18 @@ class SentimentAnalyser:
 
         for stock in self.stocks:
             for sentiment in stock.sentiment:
+                posted_at = (
+                    sentiment.posted_at.isoformat()
+                    if sentiment.posted_at is not None
+                    else None
+                )
+
                 row = [
                     stock.ticker,
                     sentiment.content,
                     sentiment.rate,
                     sentiment.category,
-                    sentiment.posted_at,
+                    posted_at,
                 ]
 
                 sheet_values.append(row)
