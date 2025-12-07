@@ -44,6 +44,6 @@ def register_app() -> FastAPI:
         lifespan=register_init,
     )
 
-    app.include_router(api_router)
+    app.include_router(api_router, prefix=settings.FASTAPI_API_V1_PATH)
 
     return app
