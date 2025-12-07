@@ -1,40 +1,38 @@
-[tool.poetry]
+[project]
 name = "idx-fundamental"
 version = "0.1.0"
 description = "IDX Composite Fundamental Analysis"
-authors = ["Satrya Budi Pratama"]
-license = "MIT"
 readme = "README.md"
-package-mode = false
-
-[tool.poetry.dependencies]
-python = "^3.12"
-selenium = "^4.22.0"
-beautifulsoup4 = "^4.12.3"
-loguru = "^0.7.2"
-requests = "^2.32.0"
-babel = "^2.15.0"
-google-api-python-client = "^2.137.0"
-python-dotenv = "^1.0.1"
-yfinance = { extras = ["nospam", "repair"], version = "^0.2.40" }
-pandas-datareader = "^0.10.0"
-openpyxl = "^3.1.5"
-crawl4ai = "^0.3.4"
-phidata = "^2.4.42"
-ollama = "^0.3.3"
-sqlalchemy = "^2.0.35"
-selenium-wire = "^5.1.0"
-blinker = "<1.8.0"
-setuptools = "^80.9.0"
-fastapi = "^0.123.10"
-aiosqlite = "^0.21.0"
-uvicorn = "^0.38.0"
-
-[build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+requires-python = ">=3.12,<4.0"
+license = { text = "MIT" }
+authors = [{ name = "Satrya Budi Pratama" }]
+dependencies = [
+    "selenium>=4.22.0",
+    "beautifulsoup4>=4.12.3",
+    "loguru>=0.7.2",
+    "requests>=2.32.0",
+    "babel>=2.15.0",
+    "google-api-python-client>=2.137.0",
+    "python-dotenv>=1.0.1",
+    "yfinance[nospam,repair]>=0.2.40",
+    "pandas-datareader>=0.10.0",
+    "openpyxl>=3.1.5",
+    "crawl4ai>=0.3.4",
+    "phidata>=2.4.42",
+    "ollama>=0.3.3",
+    "sqlalchemy>=2.0.35",
+    "selenium-wire>=5.1.0",
+    "blinker<1.8.0",
+    "setuptools>=80.9.0",
+    "fastapi>=0.123.10",
+    "aiosqlite>=0.21.0",
+    "uvicorn>=0.38.0",
+    "isort>=7.0.0",
+    "dotenv>=0.9.9",
+]
 
 [dependency-groups]
 dev = [
-    "pytest (>=9.0.1,<10.0.0)"
+    "pytest>=9.0.1",
+    "ruff>=0.14.8",
 ]

@@ -23,8 +23,8 @@ https://github.com/user-attachments/assets/13395cf7-1e3e-4153-8d20-40d4755a4c6d
 
 ### Prerequisites
 
-- Python 3.12
-- [Poetry](https://python-poetry.org/docs/#installation)
+- [Python 3.14](https://docs.python.org/3.14/whatsnew/3.14.html)
+- [UV](https://docs.astral.sh/uv/getting-started/installation/)
 
 ### Steps
 
@@ -38,7 +38,7 @@ https://github.com/user-attachments/assets/13395cf7-1e3e-4153-8d20-40d4755a4c6d
 2. Install dependencies:
 
    ```bash
-   poetry install --no-root
+   uv sync
    ```
 
 3. Set up environment variables:
