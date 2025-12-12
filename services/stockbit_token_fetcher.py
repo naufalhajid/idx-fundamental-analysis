@@ -1,15 +1,19 @@
+import json
 import logging
 import os
 import tempfile
+import time
 
-from seleniumwire import webdriver
+import undetected_chromedriver as uc
+from selenium.webdriver import ChromeOptions
 from utils.logger_config import logger
 
+# Suppress noisy logs
 for _name in (
     "selenium",
     "selenium.webdriver",
     "selenium.webdriver.remote.remote_connection",
-    "seleniumwire",
+    "urllib3",
 ):
     logging.getLogger(_name).setLevel(logging.WARNING)
 
@@ -24,68 +28,67 @@ class StockbitTokenFetcher:
         )
         os.makedirs(profile_dir, exist_ok=True)
 
-        cache_dir = os.path.join(profile_dir, "cache")
-        os.makedirs(cache_dir, exist_ok=True)
-
-        options = webdriver.ChromeOptions()
+        options = uc.ChromeOptions()
         options.add_argument(f"--user-data-dir={profile_dir}")
-        options.add_argument(f"--disk-cache-dir={cache_dir}")
+        # options.add_argument(f"--disk-cache-dir={cache_dir}") # UC handles profile better without explicit cache dir split sometimes, but keeping user-data-dir is key.
 
-        self.driver = webdriver.Chrome(options=options)
+        # Enable performance logging to capture headers
+        options.set_capability("goog:loggingPrefs", {"performance": "ALL"})
+
+        # Initialize undetected-chromedriver
+        # headless=False is important for manual login
+        self.driver = uc.Chrome(options=options, headless=False, use_subprocess=True)
 
         tmp_dir = tempfile.gettempdir()
         self.token_path = os.path.join(tmp_dir, "stockbit_token.tmp")
-        self.refresh_path = os.path.join(tmp_dir, "stockbit_refresh_token.tmp")
 
     def fetch_tokens(self):
         driver = self.driver
+        logger.info("Navigating to Stockbit login page...")
         driver.get(self.login_url)
 
         logger.info("Please log in to Stockbit in the opened browser.")
-        input("Press Enter here AFTER login succeeds... ")
+        input("Press Enter here AFTER login succeeds and the dashboard loads... ")
 
-        sample_request = None
-        for req in driver.requests:
-            if not req.response:
-                continue
-            if self.sample_url in req.url:
-                sample_request = req
-
-        if sample_request is not None:
-            auth_header = sample_request.headers.get(
-                "Authorization"
-            ) or sample_request.headers.get("authorization")
-            if not auth_header or not auth_header.startswith("Bearer "):
-                logger.error(
-                    "Could not find Bearer token in Authorization header for unread count request."
-                )
-                return None, None
-
-            access_token = auth_header.split(" ", 1)[1]
-
-            refresh_token = ""
+        # Scan performance logs for the sample request
+        logs = driver.get_log("performance")
+        
+        access_token = None
+        
+        # We look for Network.requestWillBeSent events
+        for entry in logs:
             try:
-                with open(self.refresh_path, "r") as file:
-                    existing_refresh = file.read().strip()
-                    if existing_refresh:
-                        refresh_token = existing_refresh
-            except FileNotFoundError:
-                pass
-        else:
-            logger.error("Could not find sample request for unread count. Try again.")
-            return None, None
+                message = json.loads(entry["message"])
+                method = message.get("message", {}).get("method")
+                if method == "Network.requestWillBeSent":
+                    params = message["message"]["params"]
+                    request = params.get("request", {})
+                    url = request.get("url", "")
+                    
+                    if self.sample_url in url:
+                        headers = request.get("headers", {})
+                        # Headers keys can be case-sensitive or not depending on browser version, usually title-cased or lowercase.
+                        # We check both.
+                        auth_header = headers.get("Authorization") or headers.get("authorization")
+                        
+                        if auth_header and auth_header.startswith("Bearer "):
+                            access_token = auth_header.split(" ", 1)[1]
+                            break # Found it
+            except (KeyError, json.JSONDecodeError):
+                continue
 
-        logger.info("Access and refresh tokens captured; writing to temp files.")
+        if not access_token:
+             logger.error("Could not find Bearer token in captured requests. Make sure the page finished loading.")
+             return None, None
 
+        logger.info("Access token captured.")
+        
         with open(self.token_path, "w") as f:
             f.write(access_token)
 
-        with open(self.refresh_path, "w") as f:
-            f.write(refresh_token)
+        logger.info(f"Tokens written to: {self.token_path}")
 
-        logger.info(f"Tokens written to: {self.token_path} and {self.refresh_path}")
-
-        return access_token, refresh_token
+        return access_token
 
     def close(self):
         try:

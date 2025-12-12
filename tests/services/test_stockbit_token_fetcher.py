@@ -8,10 +8,10 @@ class TestStockbitTokenFetcherReal(unittest.TestCase):
         """Integration-style test that opens a real browser and requires manual login."""
 
         fetcher = StockbitTokenFetcher()
-        access_token = refresh_token = None
+        access_token = None
 
         try:
-            access_token, refresh_token = fetcher.fetch_tokens()
+            access_token = fetcher.fetch_tokens()
         finally:
             fetcher.close()
 

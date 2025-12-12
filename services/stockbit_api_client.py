@@ -127,12 +127,11 @@ class StockbitApiClient:
         self.headers["Authorization"] = None
 
         token = None
-        refresh_token = None
 
         fetcher = None
         try:
             fetcher = StockbitTokenFetcher()
-            token, refresh_token = fetcher.fetch_tokens()
+            token = fetcher.fetch_tokens()
         except Exception as e:
             logger.error(f"Failed to fetch tokens via StockbitTokenFetcher: {e}")
         finally:
@@ -145,7 +144,7 @@ class StockbitApiClient:
         if token:
             logger.info("Logged in successfully via StockbitTokenFetcher!")
             self.headers["Authorization"] = f"Bearer {token}"
-            self._write_token(token, refresh_token or "")
+            self._write_token(token, "")
             self.is_authorise = True
         else:
             logger.error("Failed to log in via StockbitTokenFetcher.")
