@@ -60,8 +60,6 @@ https://github.com/user-attachments/assets/13395cf7-1e3e-4153-8d20-40d4755a4c6d
    }'
 
    GOOGLE_DRIVE_EMAILS='["email1@gmail.com", "email2@gmail.com"]'
-   STOCKBIT_USERNAME='hello@example.com'
-   STOCKBIT_PASSWORD='pwd'
    ```
 
 ## Usage
