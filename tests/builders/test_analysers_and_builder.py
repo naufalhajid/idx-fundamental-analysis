@@ -58,7 +58,9 @@ def test_stock_price_analyser_sheet_with_stock_factory(stock_factory) -> None:
 
     assert len(sheet) == 2
     assert sheet[0][0] == "Ticker"
+    assert sheet[0][-1] == "Created At"
     assert sheet[1][0] == stock_schema.ticker
+    assert sheet[1][-1] == stock_schema.stock_price.created_at.strftime("%Y-%m-%d")
 
 
 def test_key_analysis_analyser_populates_key_analysis(stock_factory) -> None:

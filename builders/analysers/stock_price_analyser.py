@@ -44,6 +44,7 @@ class StockPriceAnalyser:
             "Frequency",
             "Frequency Sell",
             "Frequency Buy",
+            "Created At",
         ]
         sheet_values = [header]
 
@@ -64,6 +65,7 @@ class StockPriceAnalyser:
                 stock.stock_price.frequency,
                 stock.stock_price.fsell,
                 stock.stock_price.fbuy,
+                stock.stock_price.created_at.strftime("%Y-%m-%d"),
             ]
             sheet_values.append(row)
 
