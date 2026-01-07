@@ -11,12 +11,14 @@ class TestStockbitTokenFetcherReal(unittest.TestCase):
         access_token = None
 
         try:
-            access_token = fetcher.fetch_tokens()
+            access_token, user_agent = fetcher.fetch_tokens()
         finally:
             fetcher.close()
 
         self.assertIsInstance(access_token, str)
         self.assertNotEqual(access_token, "")
+        self.assertIsInstance(user_agent, str)
+        self.assertNotEqual(user_agent, "")
 
 
 if __name__ == "__main__":

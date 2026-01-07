@@ -2,10 +2,8 @@ import json
 import logging
 import os
 import tempfile
-import time
 
 import undetected_chromedriver as uc
-from selenium.webdriver import ChromeOptions
 from utils.logger_config import logger
 
 # Suppress noisy logs
@@ -52,9 +50,9 @@ class StockbitTokenFetcher:
 
         # Scan performance logs for the sample request
         logs = driver.get_log("performance")
-        
+
         access_token = None
-        
+
         # We look for Network.requestWillBeSent events
         for entry in logs:
             try:
@@ -64,31 +62,39 @@ class StockbitTokenFetcher:
                     params = message["message"]["params"]
                     request = params.get("request", {})
                     url = request.get("url", "")
-                    
+
                     if self.sample_url in url:
                         headers = request.get("headers", {})
                         # Headers keys can be case-sensitive or not depending on browser version, usually title-cased or lowercase.
                         # We check both.
-                        auth_header = headers.get("Authorization") or headers.get("authorization")
-                        
+                        auth_header = headers.get("Authorization") or headers.get(
+                            "authorization"
+                        )
+
                         if auth_header and auth_header.startswith("Bearer "):
                             access_token = auth_header.split(" ", 1)[1]
-                            break # Found it
+                            # Don't break, keep looking for the LATEST token in the logs
             except (KeyError, json.JSONDecodeError):
                 continue
 
         if not access_token:
-             logger.error("Could not find Bearer token in captured requests. Make sure the page finished loading.")
-             return None, None
+            logger.error(
+                "Could not find Bearer token in captured requests. Make sure the page finished loading."
+            )
+            return None, None
+
+        # Capture the User-Agent used by the browser
+        user_agent = driver.execute_script("return navigator.userAgent;")
+        logger.info(f"User-Agent captured: {user_agent}")
 
         logger.info("Access token captured.")
-        
+
         with open(self.token_path, "w") as f:
             f.write(access_token)
 
         logger.info(f"Tokens written to: {self.token_path}")
 
-        return access_token
+        return access_token, user_agent
 
     def close(self):
         try:

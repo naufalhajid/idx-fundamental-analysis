@@ -37,6 +37,8 @@ class StockbitApiClient:
             tempfile.gettempdir(), "stockbit_refresh_token.tmp"
         )
 
+        self.ua_temp_file_path = os.path.join(tempfile.gettempdir(), "stockbit_ua.tmp")
+
         self._initialize_token_file()
 
     def _request(self, url: str, method: str, payload: dict = None):
@@ -128,10 +130,12 @@ class StockbitApiClient:
 
         token = None
 
+        user_agent = None
+
         fetcher = None
         try:
             fetcher = StockbitTokenFetcher()
-            token = fetcher.fetch_tokens()
+            token, user_agent = fetcher.fetch_tokens()
         except Exception as e:
             logger.error(f"Failed to fetch tokens via StockbitTokenFetcher: {e}")
         finally:
@@ -144,7 +148,12 @@ class StockbitApiClient:
         if token:
             logger.info("Logged in successfully via StockbitTokenFetcher!")
             self.headers["Authorization"] = f"Bearer {token}"
-            self._write_token(token, "")
+
+            if user_agent:
+                self.headers["User-Agent"] = user_agent
+                logger.info(f"Updated User-Agent to: {user_agent}")
+
+            self._write_token(token, "", user_agent)
             self.is_authorise = True
         else:
             logger.error("Failed to log in via StockbitTokenFetcher.")
@@ -186,11 +195,12 @@ class StockbitApiClient:
             except requests.exceptions.RequestException as e:
                 logger.error(f"Request failed: {e}")
 
-    def _write_token(self, token, refresh_token):
+    def _write_token(self, token, refresh_token, user_agent=None):
         """
         Write tokens to temporary file.
         :param token:
         :param refresh_token:
+        :param user_agent:
         :return:
         """
         with open(self.token_temp_file_path, "w") as file:
@@ -198,6 +208,10 @@ class StockbitApiClient:
 
         with open(self.refresh_token_temp_file_path, "w") as file:
             file.write(refresh_token)
+
+        if user_agent:
+            with open(self.ua_temp_file_path, "w") as file:
+                file.write(user_agent)
 
     def _initialize_token_file(self):
         """
@@ -210,6 +224,14 @@ class StockbitApiClient:
         except FileNotFoundError:
             with open(self.refresh_token_temp_file_path, "w") as file:
                 file.write("")
+
+        try:
+            with open(self.ua_temp_file_path, "r") as file:
+                ua = file.read()
+                if ua != "":
+                    self.headers["User-Agent"] = ua
+        except FileNotFoundError:
+            pass
 
         try:
             with open(self.token_temp_file_path, "r") as file:
