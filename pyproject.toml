@@ -24,6 +24,7 @@ dependencies = [
     "uvicorn>=0.38.0",
     "isort>=7.0.0",
     "dotenv>=0.9.9",
+    "pydantic>=2.12.5",
 ]
 
 [dependency-groups]
