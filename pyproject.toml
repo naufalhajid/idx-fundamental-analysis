@@ -25,12 +25,17 @@ dependencies = [
     "isort>=7.0.0",
     "dotenv>=0.9.9",
     "pydantic>=2.12.5",
+    "langgraph>=0.4.0",
+    "langchain-google-genai>=4.0.0",
+    "langchain-core>=0.3.0",
+    "tenacity>=9.0.0",
 ]
 
 [dependency-groups]
 dev = [
     "pytest>=9.0.1",
     "ruff>=0.14.8",
+    "pytest-asyncio>=1.0.0",
 ]
 
 [tool.pytest.ini_options]

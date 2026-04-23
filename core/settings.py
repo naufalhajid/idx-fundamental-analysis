@@ -63,6 +63,11 @@ class Settings(BaseSettings):
     GOOGLE_SERVICE_ACCOUNT: str = "{}"
     GOOGLE_DRIVE_EMAILS: str = '["example@gmail.com"]'
 
+    # Gemini AI
+    GEMINI_API_KEY: str = ""
+    GEMINI_FLASH_MODEL: str = "gemini-2.5-flash-lite"
+    GEMINI_PRO_MODEL: str = "gemini-2.5-flash"
+
     @model_validator(mode="before")
     @classmethod
     def check_env(cls, values: Any) -> Any:
