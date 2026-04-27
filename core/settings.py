@@ -65,8 +65,8 @@ class Settings(BaseSettings):
 
     # Gemini AI
     GEMINI_API_KEY: str = ""
-    GEMINI_FLASH_MODEL: str = "gemini-2.5-flash-lite"
-    GEMINI_PRO_MODEL: str = "gemini-2.5-flash"
+    GEMINI_FLASH_MODEL: str = "gemini-2.5-flash"
+    GEMINI_PRO_MODEL: str = "gemini-2.5-pro"
 
     @model_validator(mode="before")
     @classmethod

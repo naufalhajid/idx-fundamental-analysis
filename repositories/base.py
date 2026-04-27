@@ -37,4 +37,4 @@ class BaseRepository(Generic[ModelType]):
         return instance
 
     async def delete(self, instance: ModelType) -> None:
-        self._session.delete(instance)
+        await self._session.delete(instance)

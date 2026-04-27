@@ -53,6 +53,7 @@ class StockbitApiClient:
         - dict: The JSON response from the server, or an empty dictionary on failure.
         """
         retry = 0
+        last_status_code = None
         while retry <= 3:
             try:
                 if method == "GET":
@@ -65,6 +66,7 @@ class StockbitApiClient:
                 logger.debug(url)
                 logger.debug(response.status_code)
                 logger.debug(response.json())
+                last_status_code = response.status_code
 
                 if response.status_code == 200:
                     return response.json()
@@ -85,6 +87,9 @@ class StockbitApiClient:
                 break
 
             time.sleep(0.2)
+
+        if last_status_code == 401:
+            raise Exception("401 Unauthorized after retrying authentication.")
 
         logger.error(f"Failed to retrieve key statistics retry: {retry}")
         return {}
@@ -121,6 +126,12 @@ class StockbitApiClient:
             self._refresh_token()
         else:
             self._login()
+
+    def reauthenticate(self):
+        """
+        Public wrapper to refresh or login again when auth is invalid.
+        """
+        self._authenticate_stockbit()
 
     def _login(self):
         """

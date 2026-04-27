@@ -12,9 +12,10 @@ Swing Trade update (this session):
 - SwingTradeValidator helper: standalone function for the Synthesizer / CIO nodes
 """
 
+import re
 from typing import Annotated, Literal, TypedDict
 
-from pydantic import BaseModel, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 
 # ---------------------------------------------------------------------------
@@ -22,8 +23,7 @@ from pydantic import BaseModel, Field, model_validator
 # ---------------------------------------------------------------------------
 
 class BaseDataClass(BaseModel):
-    class Config:
-        extra = "ignore"
+    model_config = ConfigDict(extra="ignore")
 
 
 # ---------------------------------------------------------------------------
@@ -163,6 +163,29 @@ class CIOVerdict(BaseDataClass):
         """
         All business-logic enforcement lives here so the LLM never has to compute
         percentages correctly — it just supplies raw prices.
+
+        Design contract with debate_chamber.py:
+          _apply_envelope() in the CIO node overwrites entry_price_range,
+          target_price, stop_loss, and fair_value with Python-computed values
+          BEFORE this validator runs.  This validator must therefore NEVER erase
+          those fields — doing so would silently discard real market data that
+          was computed from live OHLCV.
+
+        Change log (bug fixes):
+          BUG A — Step 7 (old) stripped envelope prices when rating=HOLD.
+                  Removed: prices are always preserved regardless of rating.
+          BUG B — Step 5 (old) forced HOLD when gain_pct > 10%.
+                  Removed: debate_chamber already caps target via fair-value
+                  blending in _compute_trade_envelope; double-penalising here
+                  only hides valid momentum trades.
+          BUG C — wait_and_see and rating downgrade were triggered solely by
+                  fair_value=None, which is common for IHSG stocks with
+                  incomplete Stockbit data.  Now only genuinely bad R/R (<1.0)
+                  or low confidence (<0.60) triggers wait_and_see; missing
+                  fair_value adds a caution note but does not force HOLD.
+          BUG D — _parse_entry_mid used a bare str.split('-') which fails for
+                  ranges like '48000 - 50000' when a stray minus appears in
+                  the string.  Now uses a regex to extract the two numbers.
         """
         # 1. Parse entry midpoint from 'XXXX - YYYY' string
         entry_mid = self._parse_entry_mid()
@@ -176,7 +199,12 @@ class CIOVerdict(BaseDataClass):
             gain_pct = 0.0
 
         # 3. Risk/reward ratio
-        if entry_mid > 0 and self.stop_loss is not None and self.stop_loss > 0 and entry_mid > self.stop_loss:
+        if (
+            entry_mid > 0
+            and self.stop_loss is not None
+            and self.stop_loss > 0
+            and entry_mid > self.stop_loss
+        ):
             loss_pct = ((entry_mid - self.stop_loss) / entry_mid) * 100
             self.risk_reward_ratio = round(gain_pct / loss_pct, 2) if loss_pct > 0 else 0.0
         else:
@@ -188,37 +216,75 @@ class CIOVerdict(BaseDataClass):
         else:
             self.is_overvalued = None
 
-        # 5. Force downgrade if profit potential is outside 3-10% band
-        #    or if risk/reward is unfavourable
-        bad_rr = (self.risk_reward_ratio is None or self.risk_reward_ratio < 1.0)
-        if gain_pct < 3.0 or gain_pct > 10.0 or bad_rr or self.fair_value is None:
+        # 5. Rating downgrade guard — only trigger on genuinely bad R/R.
+        #    Missing fair_value is noted via wait_and_see but does NOT force
+        #    a downgrade: many IHSG small-caps have incomplete Stockbit data
+        #    yet are technically valid swing setups.
+        bad_rr = self.risk_reward_ratio is not None and self.risk_reward_ratio < 1.0
+        if gain_pct < 3.0 or bad_rr:
             if self.rating in ("STRONG_BUY", "BUY"):
                 self.rating = "HOLD"
 
-        # 6. Wait-and-see gate
-        if self.confidence < 0.60 or bad_rr or self.fair_value is None:
+        # 6. Wait-and-see gate — caution banner in Svelte UI.
+        #    Triggered by: low confidence, bad R/R, or missing fair value.
+        #    Missing fair value adds caution but prices are NOT erased (BUG C fix).
+        missing_fv = self.fair_value is None or self.fair_value <= 0
+        if self.confidence < 0.60 or bad_rr or missing_fv:
             self.wait_and_see = True
-            
-        # 7. Actionability Guardrail: If AVOID or HOLD due to missing data, strip setup
-        if self.rating in ("AVOID", "HOLD") and (self.fair_value is None or bad_rr):
-            self.target_price = None
-            self.stop_loss = None
-            self.entry_price_range = None
-            self.expected_return = None
-            self.risk_reward_ratio = None
-            self.summary += " (Setup trade disembunyikan/dibatalkan secara sistematis karena data fundamental tidak lengkap atau Risk/Reward tidak ideal)."
+            if missing_fv and not any("fundamental" in s.lower() for s in self.key_risks):
+                self.key_risks = list(self.key_risks) + [
+                    "Fair value tidak tersedia — validasi fundamental secara manual sebelum entry."
+                ]
+
+        # 7. ── PRICES ARE ALWAYS PRESERVED ──────────────────────────────────
+        #    The old code erased target_price / stop_loss / entry_price_range
+        #    for HOLD/AVOID ratings.  This caused the Svelte trade card to show
+        #    empty levels even though Python computed valid ones from live OHLCV.
+        #    Prices are now kept so the UI can always display the trade setup;
+        #    the rating + wait_and_see flag already communicate the caution signal.
 
         return self
 
     # ── Helpers ───────────────────────────────────────────────────────────────
 
     def _parse_entry_mid(self) -> float:
-        """Parse 'XXXX - YYYY' → midpoint float. Returns 0.0 on failure."""
+        """
+        Parse 'XXXX - YYYY' → midpoint float.  Returns 0.0 on failure.
+
+        Handles all IHSG price formats:
+          • '4800 - 5000'          → plain integers
+          • '4.800 - 5.000'        → dot as thousand separator (Indonesian)
+          • '4,800 - 5,000'        → comma as thousand separator
+          • '4800.0 - 5000.0'      → float notation
+
+        Strategy: extract all digit sequences, reconstruct the numeric value
+        by stripping separator characters, then convert to float.
+        """
         if not self.entry_price_range:
             return 0.0
         try:
-            parts = [p.strip().replace(",", "") for p in self.entry_price_range.split("-")]
-            lo, hi = float(parts[0]), float(parts[1])
+            # Remove currency prefix and whitespace
+            text = re.sub(r"[Rr][Pp]\.?\s*", "", self.entry_price_range).strip()
+            # Split on the dash that separates the two price levels.
+            # Use a greedy split on ' - ' or '-' surrounded by spaces so we
+            # don't accidentally split a negative number (not applicable for
+            # IHSG prices but keeps the parser generic).
+            parts = re.split(r"\s*[-–]\s*", text, maxsplit=1)
+            if len(parts) < 2:
+                return 0.0
+            # Strip thousand separators (both dot and comma) then parse
+            def _to_float(s: str) -> float:
+                s = s.strip()
+                # If it looks like Indonesian thousand-dot format (e.g. "4.800")
+                # the dot is a separator, not a decimal point.
+                # Heuristic: if there's exactly one dot and the part after it
+                # is exactly 3 digits, treat it as thousand separator.
+                s = re.sub(r"\.(?=\d{3}(?!\d))", "", s)  # remove thousand dots
+                s = s.replace(",", "")                     # remove thousand commas
+                return float(s)
+
+            lo = _to_float(parts[0])
+            hi = _to_float(parts[1])
             return (lo + hi) / 2
         except Exception:
             return 0.0
@@ -370,6 +436,13 @@ class DebateChamberState(TypedDict):
 
     # Merged string fed into the debate (includes margin-of-safety warnings)
     raw_data: str
+
+    # Pre-computed technical indicators from yfinance (Python ground truth)
+    # Keys: current_price, sma20, ma50, ma200, rsi14, atr14, avg_volume_20d, 52w_high, 52w_low
+    technical_indicators: dict
+
+    # Parsed fair value estimate for CIO trade envelope computation
+    fair_value_estimate: float
 
     # Debate engine
     debate_history: Annotated[list[DebateMessage], history_updater]

@@ -83,7 +83,7 @@ class StockBit:
             logger.info(
                 f"Processing key statistic for: {stock.ticker} ({processed}/{len(self.stocks)})"
             )
-            self.key_statistic = self.key_statistic_by_stock(stock)
+            self.key_statistic = self._safe_fetch_key_statistic(stock)
 
             if self.key_statistic:
                 stock.fundamental = self._fundamental(stock)
@@ -453,7 +453,7 @@ class StockBit:
             logger.info(
                 f"Processing stock price for: {stock.ticker} ({processed}/{len(self.stocks)})"
             )
-            response = self.stock_price_by_stock(stock)
+            response = self._safe_fetch_stock_price(stock)
 
             if response == {}:
                 logger.warning(
@@ -486,6 +486,36 @@ class StockBit:
             processed += 1
 
         return self
+
+    def _safe_fetch_key_statistic(self, stock: Stock) -> dict:
+        """
+        Fetches key statistics and retries once after re-authentication when 401 is detected.
+        """
+        try:
+            return self.key_statistic_by_stock(stock)
+        except Exception as e:
+            if "401" in str(e):
+                logger.warning(
+                    f"Token expired while fetching key statistics for {stock.ticker}, re-authenticating."
+                )
+                self.stockbit_api_client.reauthenticate()
+                return self.key_statistic_by_stock(stock)
+            raise
+
+    def _safe_fetch_stock_price(self, stock: Stock) -> dict:
+        """
+        Fetches stock price and retries once after re-authentication when 401 is detected.
+        """
+        try:
+            return self.stock_price_by_stock(stock)
+        except Exception as e:
+            if "401" in str(e):
+                logger.warning(
+                    f"Token expired while fetching stock price for {stock.ticker}, re-authenticating."
+                )
+                self.stockbit_api_client.reauthenticate()
+                return self.stock_price_by_stock(stock)
+            raise
 
     def stream_pinned_by_stock(self, stock: Stock) -> dict:
         """
@@ -541,8 +571,7 @@ class StockBit:
             logger.info(
                 f"Processing stream data for: {stock.ticker} ({processed}/{len(self.stocks)})"
             )
-            response_stream_pinned = self.stream_pinned_by_stock(stock)
-            response_stream = self.stream_by_stock(stock)
+            response_stream_pinned, response_stream = self._safe_fetch_stream_data(stock)
 
             if response_stream_pinned != {}:
                 pinned_data = response_stream_pinned["data"]
@@ -576,3 +605,18 @@ class StockBit:
             logger.debug(stock)
 
         return self
+
+    def _safe_fetch_stream_data(self, stock: Stock) -> tuple[dict, dict]:
+        """
+        Fetches stream data and retries once after re-authentication when 401 is detected.
+        """
+        try:
+            return self.stream_pinned_by_stock(stock), self.stream_by_stock(stock)
+        except Exception as e:
+            if "401" in str(e):
+                logger.warning(
+                    f"Token expired while fetching stream for {stock.ticker}, re-authenticating."
+                )
+                self.stockbit_api_client.reauthenticate()
+                return self.stream_pinned_by_stock(stock), self.stream_by_stock(stock)
+            raise

@@ -73,6 +73,11 @@ def extract_keystats(api_response: dict, ticker: str = "") -> KeyStats:
     
     Fungsi ini defensive — setiap field di-try/except agar satu field
     yang hilang tidak crash seluruh kalkulasi.
+
+    Key-name coverage: Stockbit API v1 /keystats/ratio/ mengembalikan struktur
+    yang berbeda tergantung endpoint dan versi. Semua pola yang diketahui
+    tercakup di bawah; debug log menunjukkan field mana yang berhasil di-parse
+    sehingga mudah menambah pola baru jika API berubah.
     
     Args:
         api_response : dict mentah dari Stockbit /keystats/ratio/v1/{ticker}
@@ -81,10 +86,18 @@ def extract_keystats(api_response: dict, ticker: str = "") -> KeyStats:
     Returns:
         KeyStats yang sudah diisi, siap untuk FairValueCalculator
     """
+    import logging as _logging
+    _log = _logging.getLogger(__name__)
+
     stats = KeyStats(ticker=ticker)
 
     def _get(keys: list[str], default: float = 0.0) -> float:
-        """Cari nilai dari daftar possible key names, return default jika tidak ada."""
+        """Cari nilai dari daftar possible key names, return default jika tidak ada.
+
+        Mendukung dot-notation untuk nested keys (e.g. "data.Current.EPS")
+        dan juga pencarian rekursif satu level ke dalam semua sub-dict
+        dari api_response untuk menangkap struktur yang tidak terduga.
+        """
         for key in keys:
             try:
                 val = api_response
@@ -94,6 +107,19 @@ def extract_keystats(api_response: dict, ticker: str = "") -> KeyStats:
                     return float(val)
             except (KeyError, TypeError, ValueError):
                 continue
+
+        # Fallback: cari key sederhana (tanpa dot) di semua sub-dict satu level
+        simple_keys = {k.split(".")[-1].lower() for k in keys}
+        for top_val in api_response.values():
+            if not isinstance(top_val, dict):
+                continue
+            for k, v in top_val.items():
+                if k.lower() in simple_keys and v is not None:
+                    try:
+                        return float(v)
+                    except (ValueError, TypeError):
+                        continue
+
         return default
 
     # ── Coba berbagai kemungkinan key name dari API Stockbit ────────────────
@@ -101,27 +127,39 @@ def extract_keystats(api_response: dict, ticker: str = "") -> KeyStats:
 
     stats.eps_ttm = _get([
         "eps", "eps_ttm", "earningPerShare", "earning_per_share",
-        "ratios.eps", "keystats.eps", "data.Current.EPS"
+        "ratios.eps", "keystats.eps", "data.Current.EPS",
+        # Stockbit v2 patterns
+        "EPS", "EPSTtm", "eps_per_share", "earningsPerShare",
+        "data.eps", "summary.eps",
     ])
 
     stats.eps_forward = _get([
         "eps_forward", "epsForward", "forward_eps",
-        "ratios.eps_forward"
+        "ratios.eps_forward", "EpsForward", "forwardEps",
     ], default=stats.eps_ttm)  # fallback ke TTM jika forward tidak ada
 
     stats.book_value_per_share = _get([
         "bookValuePerShare", "book_value_per_share", "bvps",
-        "ratios.bvps", "keystats.bvps", "data.Current.BVPS"
+        "ratios.bvps", "keystats.bvps", "data.Current.BVPS",
+        # Stockbit v2 patterns
+        "BVPS", "BookValuePerShare", "book_value", "bookValue",
+        "data.bvps", "summary.bvps", "nav_per_share",
     ])
 
     stats.dps = _get([
         "dps", "dividendPerShare", "dividend_per_share",
-        "ratios.dps", "data.Current.DPS"
+        "ratios.dps", "data.Current.DPS",
+        # Stockbit v2 patterns
+        "DPS", "DividendPerShare", "dividen_per_share",
+        "data.dps", "summary.dps", "dividend",
     ])
 
     stats.roe = _get([
         "roe", "returnOnEquity", "return_on_equity",
-        "ratios.roe", "data.Current.ROE"
+        "ratios.roe", "data.Current.ROE",
+        # Stockbit v2 patterns
+        "ROE", "ReturnOnEquity", "return_equity",
+        "data.roe", "summary.roe",
     ])
     # Normalise: jika ROE dalam persen (misal 22.5), convert ke desimal
     if stats.roe > 1.0:
@@ -129,37 +167,62 @@ def extract_keystats(api_response: dict, ticker: str = "") -> KeyStats:
 
     stats.net_margin = _get([
         "netMargin", "net_margin", "netProfitMargin",
-        "ratios.net_margin", "data.Current.NetProfitMargin"
+        "ratios.net_margin", "data.Current.NetProfitMargin",
+        # Stockbit v2 patterns
+        "NetMargin", "NetProfitMargin", "profit_margin",
+        "data.net_margin", "summary.net_margin",
     ])
     if stats.net_margin > 1.0:
         stats.net_margin = stats.net_margin / 100.0
 
     stats.roa = _get([
         "roa", "returnOnAssets", "return_on_assets",
-        "ratios.roa", "data.Current.ROA"
+        "ratios.roa", "data.Current.ROA",
+        "ROA", "ReturnOnAssets",
     ])
     if stats.roa > 1.0:
         stats.roa = stats.roa / 100.0
 
     stats.current_price = _get([
         "price", "lastPrice", "last_price", "close",
-        "priceData.last"
+        "priceData.last", "Close", "last", "harga",
     ])
 
     stats.shares_outstanding = _get([
         "sharesOutstanding", "shares_outstanding", "totalShares",
-        "outstanding_shares"
+        "outstanding_shares", "SharesOutstanding", "total_shares",
     ])
 
     stats.raw_pe_current = _get([
         "pe", "priceEarnings", "price_earnings", "per",
-        "ratios.pe", "data.Current.PE"
+        "ratios.pe", "data.Current.PE",
+        "PE", "PER", "price_to_earnings",
     ])
 
     stats.raw_pb_current = _get([
         "pb", "priceBook", "price_book", "pbv",
-        "ratios.pb", "data.Current.PBV"
+        "ratios.pb", "data.Current.PBV",
+        "PBV", "PB", "price_to_book",
     ])
+
+    # ── Debug log: report what was actually parsed ──────────────────────────
+    parsed = {
+        "eps_ttm": stats.eps_ttm,
+        "bvps": stats.book_value_per_share,
+        "dps": stats.dps,
+        "roe": f"{stats.roe * 100:.1f}%",
+        "pe_current": stats.raw_pe_current,
+        "pb_current": stats.raw_pb_current,
+    }
+    zeros = [k for k, v in parsed.items() if v == 0 or v == "0.0%"]
+    if zeros:
+        _log.warning(
+            f"[FairValue] {ticker}: fields parsed as 0 (likely missing from API): {zeros}. "
+            "Fair value may fall back to DDM only or return null. "
+            "Check Stockbit API response structure if this is unexpected."
+        )
+    else:
+        _log.info(f"[FairValue] {ticker}: all key stats parsed successfully: {parsed}")
 
     return stats
 
@@ -239,8 +302,8 @@ class FairValueCalculator:
             return None
         if ke <= g:
             return None  # model tidak valid
-        if ke - g < 0.01:
-            return None  # terlalu sensitif
+        if ke - g < 0.03:
+            return None  # spread < 3% → DDM too sensitive to be reliable
 
         fv = dps / (ke - g)
 
@@ -336,7 +399,7 @@ class FairValueCalculator:
     # ── Build Report String (untuk diinjeksi ke raw_data) ───────────────────
 
     def build_report(self, current_price: float | None = None) -> str:
-        if current_price:
+        if current_price is not None:   # ← fix: `if current_price:` is False for 0.0
             self.stats.current_price = current_price
 
         result = self.fair_value_weighted()
@@ -472,6 +535,78 @@ def get_historical_multiples(ticker: str) -> dict:
     })
 
 
+def extract_historical_multiples(api_response: dict, ticker: str) -> dict:
+    """Extract 5-year median PE/PB from Stockbit API response.
+
+    Tries multiple common Stockbit API response structures to find
+    yearly PE and PB values. Falls back to hardcoded HISTORICAL_MULTIPLES
+    if extraction fails or yields insufficient data.
+    """
+    pe_values: list[float] = []
+    pb_values: list[float] = []
+
+    data = api_response.get("data", {})
+
+    # Pattern 1: data.{year}.{metric}  (e.g. data.2024.PE)
+    if isinstance(data, dict):
+        for key, val in data.items():
+            if isinstance(key, str) and key.isdigit() and isinstance(val, dict):
+                for pe_key in ("PE", "pe", "PER", "per"):
+                    pe = val.get(pe_key)
+                    if pe is not None:
+                        try:
+                            pv = float(pe)
+                            if pv > 0:
+                                pe_values.append(pv)
+                        except (ValueError, TypeError):
+                            pass
+                        break
+                for pb_key in ("PBV", "pbv", "PB", "pb", "PriceBook"):
+                    pb = val.get(pb_key)
+                    if pb is not None:
+                        try:
+                            bv = float(pb)
+                            if bv > 0:
+                                pb_values.append(bv)
+                        except (ValueError, TypeError):
+                            pass
+                        break
+
+    # Pattern 2: data.historicalRatio (list of dicts)
+    hist = data.get("historicalRatio", data.get("historical_ratio", []))
+    if isinstance(hist, list):
+        for entry in hist:
+            if not isinstance(entry, dict):
+                continue
+            pe = entry.get("PE") or entry.get("pe") or entry.get("PER")
+            pb = entry.get("PBV") or entry.get("pb") or entry.get("PB")
+            if pe is not None:
+                try:
+                    pv = float(pe)
+                    if pv > 0:
+                        pe_values.append(pv)
+                except (ValueError, TypeError):
+                    pass
+            if pb is not None:
+                try:
+                    bv = float(pb)
+                    if bv > 0:
+                        pb_values.append(bv)
+                except (ValueError, TypeError):
+                    pass
+
+    # Start with hardcoded defaults, override with API-derived medians
+    result = get_historical_multiples(ticker)
+    if len(pe_values) >= 3:
+        sorted_pe = sorted(pe_values)
+        result["pe"] = round(sorted_pe[len(sorted_pe) // 2], 1)
+    if len(pb_values) >= 3:
+        sorted_pb = sorted(pb_values)
+        result["pb"] = round(sorted_pb[len(sorted_pb) // 2], 1)
+
+    return result
+
+
 # ---------------------------------------------------------------------------
 # Convenience factory — satu baris dari API response ke report string
 # ---------------------------------------------------------------------------
@@ -481,7 +616,7 @@ def build_fair_value_report(
     ticker: str,
     current_price: float,
 ) -> tuple[str, float]:
-    multiples = get_historical_multiples(ticker)
+    multiples = extract_historical_multiples(api_response, ticker)
     stats = extract_keystats(api_response, ticker=ticker)
 
     if multiples.get("pe"): stats.historical_pe_avg = multiples["pe"]

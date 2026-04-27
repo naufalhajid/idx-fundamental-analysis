@@ -3,40 +3,57 @@
   "verdict": {
     "ticker": "BBRI",
     "rating": "HOLD",
-    "confidence": 0.6,
-    "critical_risk_factor": "The 'future-dated' dividend poses a significant data integrity issue, undermining the reliability of the reported yield and questioning the foundational basis of the current bullish market sentiment. This could potentially signal hidden risks like impending regulatory changes or an economic downturn impacting the bank's ability to maintain such high payouts.",
-    "key_catalysts": [
-      "Attractive valuation metrics (low PE, P/B)",
-      "High dividend yield (if sustainable and accurate)",
-      "Strong profitability and gross margins",
-      "Robust institutional support at key technical levels (3150, 3100)"
-    ],
+    "confidence": 0.0,
+    "fair_value": null,
+    "entry_price_range": "2980 - 3070",
+    "target_price": 3360.0,
+    "stop_loss": 2860.0,
+    "current_price": 3070.0,
+    "timeframe": "1-3 Months",
+    "weighted_reasoning": "",
+    "critical_risk_factor": "",
+    "key_catalysts": [],
     "key_risks": [
-      "High payout ratio (92.56%) limiting capital retention and future growth opportunities, especially with lower net income growth (6.68%)",
-      "Extensive overhead supply and resistance levels (3200, 3260, 3230) indicating significant selling pressure",
-      "Data anomaly regarding the future-dated dividend, raising concerns about its sustainability and accuracy",
-      "High financial leverage (6.59) requiring strong capital buffers",
-      "Short-term technical downtrend below average price"
+      "Fair value tidak tersedia — validasi fundamental secara manual sebelum entry."
     ],
-    "summary": "BBRI presents a mixed investment picture, warranting a HOLD rating. While fundamental metrics like an attractive valuation (PE 8.45, P/B 1.48) and strong profitability are appealing, these are significantly counterbalanced by several critical concerns. The high dividend yield, a primary driver of bullish sentiment, is undermined by a 92.56% payout ratio and a concerning 'future-dated' dividend anomaly that casts doubt on its sustainability and the accuracy of market information. Technically, despite some bid support at lower levels, the stock faces substantial overhead resistance, suggesting limited upside in the near term. The high financial leverage, while common for banks, amplifies the risk associated with a high payout ratio and limited capital retention. Given the data integrity issues and the technical headwinds, a cautious approach is prudent until further clarity emerges regarding the dividend's sustainability and the underlying market data."
+    "summary": "CIO parse error — raw response stored. Error: Unterminated string starting at: line 5 column 14 (char 78)",
+    "expected_return": "+11.1%",
+    "risk_reward_ratio": 2.03,
+    "is_overvalued": null,
+    "wait_and_see": true
   },
   "debate_rounds": 2,
   "debate_history": [
     {
+      "role": "system",
+      "content": "PRICES CITED IN ROUND 1 (hard evidence — do NOT forget):\nRp 209, Rp 3,070, Rp 4,028, Rp 3,034",
+      "round": 0
+    },
+    {
       "role": "bull",
-      "content": "The Bear's focus on the high payout ratio overlooks a key point: for a mature, cash-generative bank like BBRI, this signals strong shareholder returns and efficiency, not unsustainability. The low Debt-to-Equity (0.01) confirms ample financial flexibility.\n\nFurthermore, while short-term technicals show resistance, the significant bid volume at 3150 and 3100 indicates robust institutional support and accumulation at these levels. The \"future-dated\" dividend is a minor data anomaly; the market's *bullish reaction* confirms the substance of this substantial yield. Finally, high financial leverage is standard for a banking institution, reflecting customer deposits rather than risky debt.",
+      "content": "…significant discount relative to its 52-week high of Rp 4,028 and is just above its 52-week low of Rp 3,034, making it fundamentally attractive for dividend-seeking investors at this depressed valuation.\n\n2.  **TECHNICAL ENTRY:** The optimal entry zone is identified around the current price of Rp 3,070, which is critically positioned just above the 52-week low of Rp 3,034. This level represents a high-probability support zone, as historical lows often act as strong psychological and technical floors for price action. The RSI14 at 36.9 also suggests the stock is approaching oversold conditions,",
+      "round": 1
+    },
+    {
+      "role": "bear",
+      "content": "As a Forensic Financial Auditor, the proposed swing trade BUY case for BBRI presents significant red flags and an unfavorable risk profile, making it a strong AVOID/SELL candidate.\n\n1.  **OVERVALUATION CHECK & LACK OF MARGIN OF SAFETY:** The absence of a calculable fair",
+      "round": 1
+    },
+    {
+      "role": "bull",
+      "content": "The Bear's assessment of an \"unfavorable risk profile\" fundamentally misinterprets the current market dynamics for BBRI. While a traditional fair value calculation is unavailable, the *income-based intrinsic value* derived from the announced dividend is substantial. A 6.2% yield, coupled",
       "round": 2
     },
     {
       "role": "bear",
-      "content": "The Bull's argument overlooks critical financial implications.\n\nFirst, dismissing the 92.56% payout ratio as mere \"efficiency\" ignores that with only 6.68% net income growth and *actual* financial leverage at 6.59 (not just D/E), this payout severely restricts capital retention. It limits the ability to build buffers, absorb future losses, or organically fund growth, compromising long-term resilience for a bank operating with such high leverage.\n\nSecond, fixating on bid support at 3150/3100 blinds the Bull to the *extensive overhead supply*. Multiple high-volume offer clusters (3200, 3260, 3230, etc.) signify considerable selling pressure and strong resistance, indicating a challenging path for any upward movement despite short-term bids.\n\nFinally, dismissing the future-dated dividend as a \"minor anomaly\" is a critical audit red flag. It compromises data integrity, questioning the very reliability of the reported yield and the market sentiment built upon potentially flawed temporal information. This isn't minor; it undermines the foundational data.",
+      "content": "As a Forensic Financial Auditor, the Bull's reliance on an \"income-based intrinsic value\" from the dividend yield is a dangerous misdirection, particularly given the current technical landscape and inherent market volatility.\n\nFirst, the Bull's \"income-based intrinsic value\" derived from the",
       "round": 2
     },
     {
       "role": "devils_advocate",
-      "content": "What if the \"future-dated\" dividend is not an error, but a signal of an impending regulatory change or economic downturn that will drastically alter the bank's ability to pay such high dividends, rendering the current bullish sentiment dangerously misplaced?",
+      "content": "1.  If foreign funds accelerate net selling across the IHSG, could the Rp 3,034 52-week low support break, triggering a deeper market correction towards Rp 2,900 within 1-3 months?\n\n2.  Given the",
       "round": 3
     }
   ],
-  "raw_data_summary": "FUNDAMENTALS:\n**Valuation:**\n*   Current PE Ratio (TTM): 8.45\n*   Forward PE Ratio: 7.77\n*   Price to Sales (TTM): 2.30\n*   Price to Book Value: 1.48\n*   EV to EBITDA (TTM): 5.78\n\n**Profitability:**\n*   Gross Profit Margin (Quarter): 75.06%\n*   Operating Profit Margin (Quarter): 38.37%\n*   Net Profit Margin (Quarter): 30.18%\n\n**Growth:**\n*   Revenue (Quarter YoY Growth): 18.71%\n*   Net Income (Quarter YoY Growth): 6.68%\n\n**Solvency:**\n*   Debt to Equity Ratio (Quarter): 0.01\n*   Total Liabilities/Equity (Quarter): 5.57\n*   Financial Leverage (Quarter): 6.59\n\n**Dividend:**\n*   Dividend (TTM): 346.00\n*   Dividend Yield: 10.95%\n*   Payout Ratio: 92.56%\n\nTECHNICALS:\n**Support:**\n*   3150: 19,526,200 volume\n*   3100: 11,414,500 volume\n*   3000: 7,006,500 volume\n\n**Resistance:**\n*   3200: 6,813,700 volume\n*   3260: 5,368,400 volume\n*   3230: 4,836,200 volume\n\n**Volume Anomalies:**\n*   Bid side: Significant volume at 3150 (19.5M) and 3100 (11.4M).\n*   Offer side: High volume clusters at 3200 (6.8M), 3260 (5.3M), 3230 (4.8M), 3240 (4.6M), 3250 (3.7M), 3500 (3.2M), 3450 (3.4M), 3600 (2.3M), 3900 (2.1M), 3740 (3.1M).\n\n**Short-Term Trend:**\nThe last price is 3160, which is below the average of 3199. The close was 3160, with a change of -80. This indicates a downward short-term trend. The bid at 3150 with high volume suggests a potential support level. The offer at 3170 with lower volume indicates immediate resistance.\n\nSENTIMENT:\n**Market Mood:** Bullish, driven by positive dividend news.\n\n**Key Discussions:**\n*   **BBRI Dividend:** Approval of a final dividend of Rp209/share for fiscal year 2025, representing a 92% payout ratio and an indicative yield of 6.2%. This follows an interim dividend of Rp137/share in January 2026.\n\n**Anomalies:** The dates mentioned (April 10th, 2026 for dividend approval and January 2026 for interim dividend) appear to be in the future relative to the post date (April 10th, 2026). This suggests a potential data entry error or a forward-looking projection presented as a past event."
+  "raw_data_summary": "=== FUNDAMENTALS ===\n**FAIR VALUE: Tidak dapat dikalkulasi (Data Kosong / None)**\n\n**VALUATION VERDICT:**\nDue to insufficient data, a fair value calculation was not possible, and therefore, a valuation verdict (undervalued/fairly valued/overvalued) cannot be\n\n=== TECHNICALS ===\n**Technical Chart Analysis for IHSG Swing Trade**\n\nThe IHSG is currently in a strong bearish trend. The current price of Rp 3,070 is trading significantly below both the MA50 (Rp 3,369) and the MA200\n\n=== PRE-COMPUTED TECHNICAL INDICATORS (Python Ground Truth) ===\n{\n  \"current_price\": 3070.0,\n  \"sma20\": 3165.0,\n  \"ma50\": 3369.0,\n  \"ma200\": 3469.0,\n  \"rsi14\": 36.9,\n  \"atr14\": 82.0,\n  \"avg_volume_20d\": 293780760.0,\n  \"52w_high\": 4028.0,\n  \"52w_low\": 3034.0\n}\n\n=== SENTIMENT ===\n**Overall Mood:** BULLISH (90% Confidence). The sentiment is strongly positive, driven by the announcement of BBRI's final dividend of Rp209/share, indicating a robust 6.2% yield and an increased dividend payout ratio of ~92% for the 2025 fiscal year. This news is a clear positive catalyst for shareholders.\n\n**Dominant Discussion Theme:** The primary theme is the final dividend announcement for Bank Rakyat Indonesia ($BBRI), specifically the per-share amount, dividend yield, and the high dividend payout ratio. The community is discussing the implications of this significant corporate action.\n\n**Volume Anomaly:** Discussion volume is abnormally high. The post has garnered 411 replies and 784 likes, which are substantial engagement metrics for a single pinned post, indicating significant community interest and reaction to the dividend news.\n\n**Swing-Trade Timing Signal:** The sentiment is trending with a likely positive price action. This is a strong bullish signal, suggesting buying interest and potential upward momentum for BBRI. It is not an \"EXTREME\" contrarian signal but rather a confirmation of fundamental strength that could support a continuation of a bullish trend or initiate one. The positive sentiment is expected to align with positive price movement.\n\n**Red Flags:** No red flags detected. The post originates from \"Stockbit\" (a verified admin account), providing credible, factual information regarding a corporate action. There is no language indicative of coordinated pump signals, insider-leak patterns, or panic.\n\n=== DIVIDEND EX-DATE SCAN: BBRI ===\nStatus: CLEAR — Tidak ada ex-dividend date dalam 30 hari ke depan.\n"
 }

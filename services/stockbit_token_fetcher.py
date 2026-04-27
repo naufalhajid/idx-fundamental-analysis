@@ -1,6 +1,8 @@
 import json
 import logging
 import os
+import re
+import subprocess
 import tempfile
 
 import undetected_chromedriver as uc
@@ -35,7 +37,20 @@ class StockbitTokenFetcher:
 
         # Initialize undetected-chromedriver
         # headless=False is important for manual login
-        self.driver = uc.Chrome(options=options, headless=False, use_subprocess=True)
+        chrome_major = self._detect_chrome_major_version()
+        if chrome_major is not None:
+            logger.info(f"Detected Chrome major version: {chrome_major}")
+            self.driver = uc.Chrome(
+                options=options,
+                headless=False,
+                use_subprocess=True,
+                version_main=chrome_major,
+            )
+        else:
+            logger.warning(
+                "Could not detect Chrome version, initializing undetected-chromedriver without version pin."
+            )
+            self.driver = uc.Chrome(options=options, headless=False, use_subprocess=True)
 
         tmp_dir = tempfile.gettempdir()
         self.token_path = os.path.join(tmp_dir, "stockbit_token.tmp")
@@ -101,3 +116,42 @@ class StockbitTokenFetcher:
             self.driver.quit()
         except Exception:
             pass
+
+    def _detect_chrome_major_version(self) -> int | None:
+        """
+        Detect Chrome major version to keep ChromeDriver in sync.
+        """
+        version_pattern = re.compile(r"(\d+)\.\d+\.\d+\.\d+")
+        possible_commands = (
+            [
+                "reg",
+                "query",
+                r"HKCU\Software\Google\Chrome\BLBeacon",
+                "/v",
+                "version",
+            ],
+            [
+                "reg",
+                "query",
+                r"HKLM\Software\Google\Chrome\BLBeacon",
+                "/v",
+                "version",
+            ],
+        )
+
+        for command in possible_commands:
+            try:
+                result = subprocess.run(
+                    command,
+                    capture_output=True,
+                    text=True,
+                    check=False,
+                )
+                output = f"{result.stdout}\n{result.stderr}"
+                match = version_pattern.search(output)
+                if match:
+                    return int(match.group(1))
+            except Exception:
+                continue
+
+        return None

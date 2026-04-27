@@ -5,4 +5,4 @@ import json
 
 class MsgSpecJSONResponse(JSONResponse):
     def render(self, content: Any) -> bytes:
-        return json.encode(content)
+        return json.dumps(content, ensure_ascii=False).encode("utf-8")
